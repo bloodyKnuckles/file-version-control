@@ -1,0 +1,32 @@
+{
+  "name": "file-version-control",
+  "version": "0.1.0",
+  "description": "Version control system to manage changes history made on one or more files.",
+  "main": "index.js",
+  "scripts": {
+    "test": "tape test/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bloodyKnuckles/file-version-control.git"
+  },
+  "keywords": [
+    "file",
+    "version",
+    "control",
+    "cms"
+  ],
+  "author": "Jay Scott ANDERSON",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bloodyKnuckles/file-version-control/issues"
+  },
+  "homepage": "https://github.com/bloodyKnuckles/file-version-control#readme",
+  "devDependencies": {
+    "body": "^5.1.0",
+    "tape": "^4.4.0"
+  },
+  "dependencies": {
+    "diff": "^2.2.1"
+  }
+}
