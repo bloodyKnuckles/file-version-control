@@ -24,6 +24,7 @@
   "homepage": "https://github.com/bloodyKnuckles/file-version-control#readme",
   "devDependencies": {
     "body": "^5.1.0",
+    "sanitize-filename": "^1.5.3",
     "tape": "^4.4.0"
   },
   "dependencies": {
