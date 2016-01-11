@@ -11,9 +11,6 @@ http.createServer(function (req, res) {
   if ( '/home' === req.url || '/' === req.url ) {
     res.end('home')
   }
-  else if ( '/test' === req.url ) {
-    fs.createReadStream('example/test.html').pipe(res)
-  }
   else if ( '/edit' === req.url ) {
     editFiles()
   }
@@ -25,6 +22,12 @@ http.createServer(function (req, res) {
   }
   else if ( '/edit/about' === req.url ) {
     res.end('about')
+  }
+  else if ( 0 === req.url.indexOf('/deletefile/') ) {
+    var filename = sanifile(getReqRsrc().resource)
+    fs.unlink(filedir + '/' + filename, function () {
+      res.end(req.url)
+    })
   }
 
   else if ( 'POST' === req.method ) {
@@ -42,8 +45,7 @@ http.createServer(function (req, res) {
 
   function postFile (postvars) {
     fs.access(postvars.filename, fs.R_OK | fs.W_OK, function (err) {
-      if ( err ) {
-        fs.open(filedir + '/' + postvars.filename, 'w', function (err) {
+      if ( err ) { fs.open(filedir + '/' + postvars.filename, 'w', function (err) {
           if ( err ) throw err
           var ws = fs.createWriteStream(filedir + '/' + sanifile(postvars.filename))
           ws.write(postvars.data)
@@ -57,7 +59,7 @@ http.createServer(function (req, res) {
   }
 
   function editFileName () {
-    var filename = getReqRsrc().resource
+    var filename = sanifile(getReqRsrc().resource)
     fs.readFile(filedir + '/' + filename, function (err, data) {
       data = data || ''
       res.write('<p>filename: <input type="text" id="filename" value="' + filename + '"></p>')
@@ -83,12 +85,21 @@ http.createServer(function (req, res) {
   function editFiles () {
     fs.readdir(filedir, function (err, files) {
       files && files.forEach(function (file) {
-        res.write('<a href="/edit/' + file + '">' + file + '</a><br>')
+        res.write('<div><a class="delete" href="#">X</a>')
+        res.write('&nbsp;&nbsp;<a class="file" href="/edit/' + file + '">' + file + '</a></div>')
       })
       res.write('<p>new: <input id="newfile" name="filename" type="text"></p>')
       res.write('<script>document.getElementById("newfile").addEventListener(')
       res.write('"keypress", function (evt) { if ( 13 === evt.keyCode ) {')
-      res.write('location.href="/edit/" + evt.target.value; }})</script>')
+      res.write('location.href="/edit/" + evt.target.value; }}); ')
+      res.write('Array.prototype.forEach.call(document.querySelectorAll(".delete"), ')
+      res.write('function (del) {del.addEventListener("click", function (evt){')
+      res.write('var filename = evt.target.parentNode.querySelector(".file").textContent; ')
+      res.write('var xhr = new XMLHttpRequest(); xhr.open("GET", "/deletefile/" + filename, true); ')
+      res.write('xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest"); ')
+      res.write('xhr.onload = function () { console.log(xhr.responseText); }; xhr.send(); ')
+      res.write('evt.target.parentNode.parentNode.removeChild(evt.target.parentNode);})')
+      res.write('})</script>')
       res.end()
     })
   }
@@ -109,5 +120,4 @@ http.createServer(function (req, res) {
   }
 
 }).listen(8080, 'localhost')
-
 
